@@ -25,7 +25,7 @@ $:.unshift path unless $:.include?(path)
 require 'geokit/core_ext'
 require 'geokit/geocoders'
 require 'geokit/mappable'
-require 'geokit/bounds'
 require 'geokit/lat_lng'
+require 'geokit/bounds'
 require 'geokit/geo_loc'
 require 'geokit/polygon'

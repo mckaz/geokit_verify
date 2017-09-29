@@ -1,3 +1,6 @@
+require 'rdl'
+require 'types/core'
+
 module Geokit
   # This class encapsulates the result of a geocoding call.
   # It's primary purpose is to homogenize the results of multiple
@@ -42,6 +45,11 @@ module Geokit
     # FCC Attributes
     attr_accessor :district_fips, :state_fips, :block_fips
 
+    type :state, '() -> %integer', modular: true, pure: true  ## int instead of string
+    type :success, '() -> %bool', modular: true, pure: true
+    #var_type :@state
+
+    type '() -> %integer b {{ b == state }}', verify: :later
     def province
       state
     end
@@ -69,6 +77,7 @@ module Geokit
       super(h[:lat], h[:lng])
     end
 
+    #type '() -> %bool b {{ b == (@state || @state_code || @state_name) }}', verify: :try
     def state
       @state || @state_code || @state_name
     end
@@ -78,6 +87,7 @@ module Geokit
       country_code == 'US'
     end
 
+    type '() -> %bool b {{ b == success }}', verify: :later
     def success?
       success == true
     end

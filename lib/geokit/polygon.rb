@@ -2,8 +2,10 @@ module Geokit
   # A complex polygon made of multiple points.  End point must equal start point to close the poly.
   class Polygon
     attr_accessor :points
+    var_type :@points, "Array<Geokit::LatLng>"
 
     # Pass in an array of Geokit::LatLng
+    type '(Array<Geokit::LatLng> points) -> self s {{ @points[-1] == @points[2] }}', verify: :try#{{ @points[-1] == @points[2] }}', verify: :try2
     def initialize(points)
       @points = points
 
@@ -12,7 +14,12 @@ module Geokit
       @points << points[0] if points[0] != points[-1]
     end
 
+    type '(Geokit::LatLng point) -> %bool b {{ if @points.size <= 1 then b == false end }}', verify: :later
     def contains?(point)
+      var_type :last_point, "Geokit::LatLng"
+      var_type :x, "%integer"
+      var_type :y, "%integer"
+      var_type :oddNodes, "%bool"
       last_point = @points[-1]
       oddNodes = false
       x = point.lng

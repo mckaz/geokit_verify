@@ -36,4 +36,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'vcr'
   # webmock 2 not yet compatible out of the box with VCR
   spec.add_development_dependency 'webmock', '< 2' # used in vcr
+  spec.add_development_dependency 'rdl'
 end

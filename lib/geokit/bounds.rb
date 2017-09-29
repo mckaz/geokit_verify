@@ -1,9 +1,21 @@
+require 'rdl'
+require 'types/core'
+
 module Geokit
   # Bounds represents a rectangular bounds, defined by the SW and NE corners
   class Bounds
     # sw and ne are LatLng objects
     attr_accessor :sw, :ne
+    var_type :@ne, Geokit::LatLng
+    var_type :@sw, Geokit::LatLng
 
+    type :sw, '() -> Geokit::LatLng g {{ g == @sw }}', modular: true, pure: true
+    type :ne, '() -> Geokit::LatLng g {{ g == @ne }}', modular: true, pure: true
+    type Geokit::LatLng, :midpoint_to, '(Geokit::LatLng g) -> %integer m', modular: true, pure: true  ## unclear what actual return value should be
+    #type Geokit::LatLng, :midpoint_to, '(Geokit::LatLng g) -> Geokit::LatLng r', modular: true, pure: true  ## unclear what actual return value should be
+    type Geokit::LatLng, :lat, '() -> %integer i {{ i == @lat }}', modular: true, pure: true
+    type Geokit::LatLng, :lng, '() -> %integer i {{ i == @lng }}', modular: true, pure: true
+    
     # provide sw and ne to instantiate a new Bounds instance
     def initialize(sw, ne)
       unless sw.is_a?(Geokit::LatLng) && ne.is_a?(Geokit::LatLng)
@@ -13,6 +25,8 @@ module Geokit
     end
 
     # returns the a single point which is the center of the rectangular bounds
+    type '() -> %integer j {{ j == @sw.midpoint_to(@ne) }}', verify: :later
+    #type '() -> Geokit::LatLng j {{ j == @sw.midpoint_to(@ne) }}', verify: :at. not possible until equal? issue fixed
     def center
       @sw.midpoint_to(@ne)
     end
@@ -41,6 +55,7 @@ module Geokit
     end
 
     # returns true if the bounds crosses the international dateline
+    type '() -> %bool b {{ b == @sw.lng > @ne.lng }}', verify: :later
     def crosses_meridian?
       @sw.lng > @ne.lng
     end
@@ -48,8 +63,9 @@ module Geokit
     # Returns true if the candidate object is logically equal. Logical
     # equivalence is true if the lat and lng attributes are the same for both
     # objects.
+    type '(Geokit::Bounds other) -> %bool b {{ if b then other.is_a?(Geokit::Bounds) && (sw == other.sw) && (ne == other.ne) end }}', verify: :later
     def ==(other)
-      return false unless other.is_a?(Bounds)
+      return false unless other.is_a?(Geokit::Bounds)  ## Changed Bounds here to Geokit::Bounds to get around typechecker const_get issue.
       sw == other.sw && ne == other.ne
     end
 
